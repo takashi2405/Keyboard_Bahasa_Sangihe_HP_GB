@@ -19,50 +19,80 @@ body{
     font-family:sans-serif;
 }
 
+/* HEADER */
+h2{
+    margin:0;
+    padding:6px;
+    text-align:center;
+    flex:0 0 auto;
+}
+
 /* EDITOR */
-#editor{
+#editorWrap{
     flex:1;
     margin:6px;
     padding:10px;
     border:2px solid #ccc;
     border-radius:10px;
-    overflow:auto;
-    font-size:18px;
-    word-break:break-word;
+    background:#fff;
+
+    font-size:20px;
     white-space:pre-wrap;
+    word-break:break-word;
+
+    overflow:auto;
 }
+
+/* CARET */
+#caret{
+    display:inline-block;
+    width:2px;
+    height:1em;
+    background:black;
+    animation:blink 1s step-end infinite;
+}
+
+@keyframes blink{50%{opacity:0;}}
 
 /* KEYBOARD */
 .keyboard{
-    flex-shrink:0;   /* ★潰れ防止 */
+    flex:0 0 auto;
+    margin:6px;
     display:flex;
     flex-direction:column;
     gap:4px;
-    padding:6px;
-    background:#eee;
 }
 
-/* ROW */
+/* ORIGINAL ROW STRUCTURE */
 .row{
     display:grid;
-    grid-template-columns:repeat(10,1fr);
     gap:4px;
+}
+
+.row10{
+    grid-template-columns:repeat(10,1fr);
+}
+
+.row6{
+    grid-template-columns:1fr 1fr 2.2fr 0.8fr 1.4fr;
 }
 
 /* KEY */
 .key{
     height:42px;
-    border:1px solid #bbb;
+    border:1px solid #ccc;
     border-radius:8px;
-    background:#fff;
+    background:#f8f9fa;
+    font-weight:600;
 }
 
 /* FOOTER */
 .footer{
     text-align:center;
     font-size:10px;
-    padding:4px;
     color:#666;
+    padding:4px 0 6px;
+    flex:0 0 auto;
 }
 
 </style>
@@ -70,40 +100,170 @@ body{
 
 <body>
 
-<div id="editor"></div>
+<h2>Keyboard Bahasa Sangihe</h2>
+
+<div id="editorWrap"></div>
 
 <div class="keyboard">
 
 <!-- ROW 1 -->
-<div class="row">
-<button class="key">1</button><button class="key">2</button><button class="key">3</button><button class="key">4</button><button class="key">5</button><button class="key">6</button><button class="key">7</button><button class="key">8</button><button class="key">9</button><button class="key">0</button>
+<div class="row row10">
+<button class="key letter" data-l="́" data-u="~">́</button>
+<button class="key letter" data-l="-" data-u="_">-</button>
+<button class="key letter" data-l="=" data-u="+">=</button>
+<button class="key letter" data-l="[" data-u="{">[</button>
+<button class="key letter" data-l="]" data-u="}">]</button>
+<button class="key letter" data-l="\" data-u="|">\</button>
+<button class="key letter" data-l=";" data-u=":">;</button>
+<button class="key letter" data-l="'" data-u='"'>'</button>
+<button class="key letter" data-l="/" data-u="?">/</button>
+<button class="key special" id="back">⌫</button>
 </div>
 
 <!-- ROW 2 -->
-<div class="row">
-<button class="key">q</button><button class="key">w</button><button class="key">e</button><button class="key">r</button><button class="key">t</button><button class="key">y</button><button class="key">u</button><button class="key">i</button><button class="key">o</button><button class="key">p</button>
+<div class="row row10">
+<button class="key letter" data-l="1" data-u="!">1</button>
+<button class="key letter" data-l="2" data-u="@">2</button>
+<button class="key letter" data-l="3" data-u="#">3</button>
+<button class="key letter" data-l="4" data-u="$">4</button>
+<button class="key letter" data-l="5" data-u="%">5</button>
+<button class="key letter" data-l="6" data-u="^">6</button>
+<button class="key letter" data-l="7" data-u="&">7</button>
+<button class="key letter" data-l="8" data-u="*">8</button>
+<button class="key letter" data-l="9" data-u="(">9</button>
+<button class="key letter" data-l="0" data-u=")">0</button>
 </div>
 
 <!-- ROW 3 -->
-<div class="row">
-<button class="key">a</button><button class="key">s</button><button class="key">d</button><button class="key">f</button><button class="key">g</button><button class="key">h</button><button class="key">j</button><button class="key">k</button><button class="key">l</button><button class="key">.</button>
+<div class="row row10">
+<button class="key letter" data-l="q" data-u="Q">q</button>
+<button class="key letter" data-l="w" data-u="W">w</button>
+<button class="key letter" data-l="e" data-u="E">e</button>
+<button class="key letter" data-l="r" data-u="R">r</button>
+<button class="key letter" data-l="t" data-u="T">t</button>
+<button class="key letter" data-l="y" data-u="Y">y</button>
+<button class="key letter" data-l="u" data-u="U">u</button>
+<button class="key letter" data-l="i" data-u="I">i</button>
+<button class="key letter" data-l="o" data-u="O">o</button>
+<button class="key letter" data-l="p" data-u="P">p</button>
 </div>
 
 <!-- ROW 4 -->
-<div class="row">
-<button class="key">z</button><button class="key">x</button><button class="key">c</button><button class="key">v</button><button class="key">b</button><button class="key">n</button><button class="key">m</button><button class="key">-</button><button class="key">=</button><button class="key">/</button>
+<div class="row row10">
+<button class="key letter" data-l="a" data-u="A">a</button>
+<button class="key letter" data-l="s" data-u="S">s</button>
+<button class="key letter" data-l="ĕ" data-u="Ĕ">ĕ</button>
+<button class="key letter" data-l="d" data-u="D">d</button>
+<button class="key letter" data-l="f" data-u="F">f</button>
+<button class="key letter" data-l="g" data-u="G">g</button>
+<button class="key letter" data-l="h" data-u="H">h</button>
+<button class="key letter" data-l="j" data-u="J">j</button>
+<button class="key letter" data-l="k" data-u="K">k</button>
+<button class="key letter" data-l="l" data-u="L">l</button>
 </div>
 
 <!-- ROW 5 -->
-<div class="row">
-<button class="key">Shift</button><button class="key">Caps</button><button class="key">Space</button><button class="key">⌫</button><button class="key">Enter</button><button class="key"></button><button class="key"></button><button class="key"></button><button class="key"></button><button class="key"></button>
+<div class="row row10">
+<button class="key letter" data-l="̣" data-u="̣">◌&#803;</button>
+<button class="key letter" data-l="z" data-u="Z">z</button>
+<button class="key letter" data-l="x" data-u="X">x</button>
+<button class="key letter" data-l="c" data-u="C">c</button>
+<button class="key letter" data-l="v" data-u="V">v</button>
+<button class="key letter" data-l="b" data-u="B">b</button>
+<button class="key letter" data-l="n" data-u="N">n</button>
+<button class="key letter" data-l="m" data-u="M">m</button>
+<button class="key letter" data-l="l᷊" data-u="L᷊">l᷊</button>
+<button class="key letter" data-l="," data-u="<">,</button>
+</div>
+
+<!-- ROW 6 -->
+<div class="row row6">
+<button class="key special" id="shift">Shift</button>
+<button class="key special" id="caps">Caps</button>
+<button class="key" id="space">Space</button>
+<button class="key letter" data-l="." data-u=">">.</button>
+<button class="key special" id="enter">Enter</button>
 </div>
 
 </div>
 
 <div class="footer">
-© 2026 Takashi NAKAGAWA [0542]
+© 2026 Takashi NAKAGAWA [0548]
 </div>
+
+<script>
+
+/* STATE */
+let text="";
+let caret=0;
+let shift=false;
+let caps=false;
+
+const editor=document.getElementById("editorWrap");
+
+/* RENDER */
+function render(){
+
+    editor.innerHTML="";
+
+    const before=text.slice(0,caret);
+    const after=text.slice(caret);
+
+    editor.appendChild(document.createTextNode(before));
+
+    const caretNode=document.createElement("span");
+    caretNode.id="caret";
+
+    editor.appendChild(caretNode);
+    editor.appendChild(document.createTextNode(after));
+}
+
+/* INSERT */
+function insert(ch){
+    text=text.slice(0,caret)+ch+text.slice(caret);
+    caret++;
+    shift=false;
+    updateKeys();
+    render();
+}
+
+/* KEY UPDATE */
+function updateKeys(){
+    document.querySelectorAll(".letter").forEach(b=>{
+        b.textContent=(shift||caps)?b.dataset.u:b.dataset.l;
+    });
+}
+
+/* EVENTS */
+document.querySelectorAll(".letter").forEach(b=>{
+    b.addEventListener("click",()=>insert((shift||caps)?b.dataset.u:b.dataset.l));
+});
+
+document.getElementById("back").onclick=()=>{
+    if(caret>0){
+        text=text.slice(0,caret-1)+text.slice(caret);
+        caret--;
+        render();
+    }
+};
+
+document.getElementById("space").onclick=()=>insert(" ");
+document.getElementById("enter").onclick=()=>insert("\n");
+
+document.getElementById("shift").onclick=()=>{
+    shift=!shift;
+    updateKeys();
+};
+
+document.getElementById("caps").onclick=()=>{
+    caps=!caps;
+    updateKeys();
+};
+
+updateKeys();
+render();
+
+</script>
 
 </body>
 </html>
