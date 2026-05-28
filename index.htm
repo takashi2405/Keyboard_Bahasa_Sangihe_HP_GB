@@ -7,24 +7,22 @@
 
 <style>
 
-*{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
-}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 
 body{
     margin:0;
     height:100dvh;
     display:flex;
     flex-direction:column;
-    font-family:sans-serif;
     background:#f0f2f5;
+    font-family:sans-serif;
 }
 
 h2{
     margin:0;
     padding:6px;
     text-align:center;
+    flex:0 0 auto;
 }
 
 /* EDITOR */
@@ -49,7 +47,6 @@ h2{
     width:2px;
     height:1em;
     background:black;
-    vertical-align:bottom;
     animation:blink 1s step-end infinite;
 }
 
@@ -57,6 +54,7 @@ h2{
 
 /* KEYBOARD */
 .keyboard{
+    flex:0 0 auto;   /* ★重要：潰れ防止 */
     margin:6px;
     display:flex;
     flex-direction:column;
@@ -79,11 +77,11 @@ h2{
 
 /* FOOTER */
 .footer{
+    flex:0 0 auto;
     text-align:center;
     font-size:10px;
     color:#666;
     padding:4px 0 6px;
-    flex:0 0 auto;
 }
 
 </style>
@@ -113,7 +111,7 @@ h2{
 </div>
 
 <div class="footer">
-© 2026 Takashi NAKAGAWA [0518]
+© 2026 Takashi NAKAGAWA [0528]
 </div>
 
 <script>
@@ -123,7 +121,7 @@ let caret=0;
 
 const editor=document.getElementById("editorWrap");
 
-/* RENDER */
+/* ===== RENDER (SAFE) ===== */
 function render(){
 
     editor.innerHTML="";
@@ -161,12 +159,15 @@ editor.addEventListener("click",(e)=>{
     }
 });
 
-/* KEYS */
-document.querySelectorAll(".letter").forEach(b=>{
-    b.onclick=()=>insert(b.dataset.l);
-});
+/* ★重要：DOM確定後にバインド */
+window.addEventListener("DOMContentLoaded",()=>{
 
-render();
+    document.querySelectorAll(".letter").forEach(b=>{
+        b.addEventListener("click",()=>insert(b.dataset.l));
+    });
+
+    render();
+});
 
 </script>
 
