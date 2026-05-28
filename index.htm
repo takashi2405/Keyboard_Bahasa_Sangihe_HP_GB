@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Gboard Style Editor</title>
+
+<title>Keyboard Bahasa Sangihe</title>
 
 <style>
 
@@ -27,8 +28,14 @@ body{
     padding:6px;
 }
 
-/* ===== EDITOR ===== */
+/* HEADER */
+h2{
+    margin:0 0 6px 0;
+    font-size:18px;
+    text-align:center;
+}
 
+/* EDITOR */
 #editorWrap{
     flex:1;
     position:relative;
@@ -46,7 +53,7 @@ body{
     line-height:1.4;
 }
 
-/* caret */
+/* CARET */
 #caret{
     position:absolute;
     width:2px;
@@ -59,8 +66,7 @@ body{
     50%{opacity:0;}
 }
 
-/* ===== ACTIONS ===== */
-
+/* ACTIONS */
 .actions{
     display:flex;
     gap:5px;
@@ -77,9 +83,9 @@ button{
 
 #clear{background:#e9ecef;}
 #copy{background:#4dabf7;color:#fff;}
+#paste{background:#51cf66;color:#fff;}
 
-/* ===== KEYBOARD ===== */
-
+/* KEYBOARD */
 .keyboard{
     display:flex;
     flex-direction:column;
@@ -116,12 +122,27 @@ button{
     background:#dee2e6;
 }
 
+.lock{
+    background:#228be6;
+    color:#fff;
+}
+
+/* FOOTER */
+.footer{
+    margin-top:6px;
+    font-size:10px;
+    text-align:center;
+    color:#666;
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="container">
+
+<h2>Keyboard Bahasa Sangihe</h2>
 
 <div id="editorWrap">
     <div id="textLayer"></div>
@@ -130,7 +151,8 @@ button{
 
 <div class="actions">
     <button id="clear">Hapus semua</button>
-    <button id="copy">Salin semua</button>
+    <button id="copy">Copy</button>
+    <button id="paste">Paste</button>
 </div>
 
 <div class="keyboard">
@@ -218,6 +240,10 @@ button{
 
 </div>
 
+<div class="footer">
+© 2026 Takashi NAKAGAWA [versi 05280434]
+</div>
+
 </div>
 
 <script>
@@ -236,47 +262,46 @@ const caretEl = document.getElementById("caret");
 const wrap = document.getElementById("editorWrap");
 
 /* =========================
-   RENDER
+   RENDER (FIXED)
 ========================= */
 
 function render(){
 
     layer.textContent = text;
 
-    const range = document.createRange();
-    const sel = window.getSelection();
-
-    // fake caret position
     const span = document.createElement("span");
     span.textContent = "|";
 
     const before = text.slice(0, caret);
     layer.textContent = before;
-
     layer.appendChild(span);
     layer.appendChild(document.createTextNode(text.slice(caret)));
 
     const rect = span.getBoundingClientRect();
     const wrapRect = wrap.getBoundingClientRect();
 
-    caretEl.style.left = (rect.left - wrapRect.left + wrap.scrollLeft) + "px";
-    caretEl.style.top  = (rect.top - wrapRect.top + wrap.scrollTop) + "px";
+    caretEl.style.left =
+        (rect.left - wrapRect.left + wrap.scrollLeft) + "px";
+
+    caretEl.style.top =
+        (rect.top - wrapRect.top + wrap.scrollTop) + "px";
 }
 
 /* =========================
-   INPUT CORE
+   INPUT
 ========================= */
 
-function insertChar(ch){
+function isUpper(){ return shift || caps; }
 
+function insertChar(ch){
     text = text.slice(0, caret) + ch + text.slice(caret);
     caret += ch.length;
-
+    shift = false;
+    renderKeys();
     render();
 }
 
 function backspace(){
-
     if(caret>0){
         text = text.slice(0, caret-1) + text.slice(caret);
         caret--;
@@ -288,12 +313,28 @@ function backspace(){
    KEYS
 ========================= */
 
-function isUpper(){ return shift || caps; }
+function renderKeys(){
+    document.querySelectorAll(".letter").forEach(b=>{
+        b.textContent = isUpper()?b.dataset.upp:b.dataset.low;
+    });
+}
 
 function pressKey(btn){
     const ch = isUpper()?btn.dataset.upp:btn.dataset.low;
     insertChar(ch);
-    shift=false;
+}
+
+/* =========================
+   CLIPBOARD (FIXED)
+========================= */
+
+async function doPaste(){
+    try{
+        const clip = await navigator.clipboard.readText();
+        insertChar(clip);
+    }catch(e){
+        alert("Paste blocked by browser permissions");
+    }
 }
 
 /* =========================
@@ -314,12 +355,14 @@ document.getElementById("copy").onclick=async()=>{
     await navigator.clipboard.writeText(text);
 };
 
+document.getElementById("paste").onclick=doPaste;
+
 document.getElementById("shift").onclick=()=>{
-    shift=!shift; render();
+    shift=!shift; renderKeys();
 };
 
 document.getElementById("caps").onclick=()=>{
-    caps=!caps; render();
+    caps=!caps; renderKeys();
 };
 
 document.getElementById("enter").onclick=()=>{
@@ -330,6 +373,7 @@ document.getElementById("space").onclick=()=>{
     insertChar(" ");
 };
 
+renderKeys();
 render();
 
 </script>
