@@ -7,10 +7,7 @@
 
 <style>
 
-*{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
-}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 
 body{
     margin:0;
@@ -20,19 +17,17 @@ body{
     font-family:sans-serif;
 }
 
-/* HEADER */
 h2{
     margin:0;
-    padding:6px;
     text-align:center;
+    padding:6px;
 }
 
-/* EDITOR */
+/* editor */
 #editor{
-    flex:1;
-    position:relative;
     margin:6px;
     padding:10px;
+    height:40vh;
     border:2px solid #ccc;
     border-radius:10px;
     background:#fff;
@@ -40,36 +35,38 @@ h2{
     font-size:20px;
     white-space:pre-wrap;
     word-break:break-word;
-
-    user-select:none;
+    overflow:auto;
 }
 
-/* caret */
 #caret{
     position:absolute;
     width:2px;
-    background:black;
     height:22px;
+    background:black;
     animation:blink 1s step-end infinite;
 }
 
-@keyframes blink{
-    50%{opacity:0;}
-}
-
-/* selection */
-.sel{
-    background:rgba(77,171,247,0.35);
-}
+@keyframes blink{50%{opacity:0;}}
 
 /* keyboard */
 .keyboard{
-    display:grid;
-    gap:4px;
     margin:6px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
 }
 
-.row10{grid-template-columns:repeat(10,1fr);}
+.row10{
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    gap:4px;
+}
+
+.row6{
+    display:grid;
+    grid-template-columns:1fr 1fr 2fr 1fr 1fr;
+    gap:4px;
+}
 
 .key{
     height:42px;
@@ -77,6 +74,17 @@ h2{
     border-radius:8px;
     background:#f8f9fa;
     font-weight:600;
+}
+
+.key:active{transform:scale(0.97);}
+
+.special{background:#dee2e6;}
+
+.footer{
+    text-align:center;
+    font-size:10px;
+    color:#666;
+    margin-top:6px;
 }
 
 </style>
@@ -91,200 +99,128 @@ h2{
 
 <div class="keyboard">
 
+<!-- ROW 1 -->
 <div class="row10">
-<button class="key letter" data="q">q</button>
-<button class="key letter" data="w">w</button>
-<button class="key letter" data="e">e</button>
-<button class="key letter" data="r">r</button>
-<button class="key letter" data="t">t</button>
-<button class="key letter" data="y">y</button>
-<button class="key letter" data="u">u</button>
-<button class="key letter" data="i">i</button>
-<button class="key letter" data="o">o</button>
-<button class="key letter" data="p">p</button>
+<button class="key letter" data-l="q" data-u="Q">q</button>
+<button class="key letter" data-l="w" data-u="W">w</button>
+<button class="key letter" data-l="e" data-u="E">e</button>
+<button class="key letter" data-l="r" data-u="R">r</button>
+<button class="key letter" data-l="t" data-u="T">t</button>
+<button class="key letter" data-l="y" data-u="Y">y</button>
+<button class="key letter" data-l="u" data-u="U">u</button>
+<button class="key letter" data-l="i" data-u="I">i</button>
+<button class="key letter" data-l="o" data-u="O">o</button>
+<button class="key letter" data-l="p" data-u="P">p</button>
 </div>
 
+<!-- ROW 2 -->
+<div class="row10">
+<button class="key letter" data-l="a" data-u="A">a</button>
+<button class="key letter" data-l="s" data-u="S">s</button>
+<button class="key letter" data-l="d" data-u="D">d</button>
+<button class="key letter" data-l="f" data-u="F">f</button>
+<button class="key letter" data-l="g" data-u="G">g</button>
+<button class="key letter" data-l="h" data-u="H">h</button>
+<button class="key letter" data-l="j" data-u="J">j</button>
+<button class="key letter" data-l="k" data-u="K">k</button>
+<button class="key letter" data-l="l" data-u="L">l</button>
+<button class="key letter" data-l="." data-u=">">.</button>
+</div>
+
+<!-- ROW 3 -->
+<div class="row10">
+<button class="key special" id="shift">Shift</button>
+<button class="key special" id="caps">Caps</button>
+<button class="key" id="space">Space</button>
+<button class="key special" id="back">⌫</button>
+<button class="key special" id="enter">Enter</button>
+</div>
+
+</div>
+
+<div class="footer">
+© 2026 Takashi NAKAGAWA [0451]
 </div>
 
 <script>
 
-/* =========================
-   STATE
-========================= */
+/* ===== STATE ===== */
+let text="";
+let caret=0;
+let shift=false;
+let caps=false;
 
-let text = "";
-let caret = 0;
-let selStart = 0;
-let selEnd = 0;
+const editor=document.getElementById("editor");
+const caretEl=document.getElementById("caret");
 
-const editor = document.getElementById("editor");
-const caretEl = document.getElementById("caret");
-
-/* =========================
-   RENDER
-========================= */
-
+/* ===== RENDER (SAFE) ===== */
 function render(){
+    editor.textContent=text;
 
-    editor.innerHTML = "";
+    const dummy=document.createElement("span");
+    dummy.textContent="|";
+    editor.appendChild(dummy);
 
-    for(let i=0;i<text.length;i++){
+    const r=dummy.getBoundingClientRect();
+    const er=editor.getBoundingClientRect();
 
-        const span = document.createElement("span");
-        span.textContent = text[i];
+    caretEl.style.left=(r.left-er.left)+"px";
+    caretEl.style.top=(r.top-er.top)+"px";
 
-        if(i>=Math.min(selStart,selEnd) &&
-           i<Math.max(selStart,selEnd)){
-            span.className="sel";
-        }
-
-        editor.appendChild(span);
-    }
-
-    // caret
-    const fake = document.createElement("span");
-    fake.textContent="|";
-    editor.appendChild(fake);
-
-    const rect = fake.getBoundingClientRect();
-    const er = editor.getBoundingClientRect();
-
-    caretEl.style.left = (rect.left-er.left)+"px";
-    caretEl.style.top = (rect.top-er.top)+"px";
+    editor.removeChild(dummy);
 }
 
-/* =========================
-   INSERT
-========================= */
-
+/* ===== INSERT ===== */
 function insert(ch){
-
-    if(selStart!==selEnd){
-        deleteSelection();
-    }
-
-    text = text.slice(0,caret) + ch + text.slice(caret);
-    caret += ch.length;
-
-    selStart=selEnd=caret;
+    text=text.slice(0,caret)+ch+text.slice(caret);
+    caret+=ch.length;
+    shift=false;
+    updateKeys();
     render();
 }
 
-function deleteSelection(){
-
-    const s=Math.min(selStart,selEnd);
-    const e=Math.max(selStart,selEnd);
-
-    text=text.slice(0,s)+text.slice(e);
-
-    caret=s;
-    selStart=selEnd=s;
+/* ===== BACKSPACE ===== */
+function backspace(){
+    if(caret>0){
+        text=text.slice(0,caret-1)+text.slice(caret);
+        caret--;
+        render();
+    }
 }
 
-/* =========================
-   CLICK → CURSOR
-========================= */
+/* ===== KEY MODE ===== */
+function isUpper(){return shift||caps;}
 
-editor.addEventListener("click",(e)=>{
+function updateKeys(){
+    document.querySelectorAll(".letter").forEach(b=>{
+        b.textContent=isUpper()?b.dataset.u:b.dataset.l;
+    });
+}
 
-    const x=e.clientX;
-
-    let sum=0;
-
-    for(let i=0;i<text.length;i++){
-
-        const span=document.createElement("span");
-        span.textContent=text[i];
-
-        editor.appendChild(span);
-        const r=span.getBoundingClientRect();
-
-        editor.removeChild(span);
-
-        if(x<r.left+r.width/2){
-            caret=i;
-            selStart=selEnd=i;
-            render();
-            return;
-        }
-
-        sum=i;
-    }
-
-    caret=text.length;
-    selStart=selEnd=caret;
-    render();
-});
-
-/* =========================
-   DRAG SELECTION
-========================= */
-
-let dragging=false;
-
-editor.addEventListener("mousedown",e=>{
-    dragging=true;
-});
-
-editor.addEventListener("mousemove",e=>{
-    if(!dragging)return;
-
-    const x=e.clientX;
-
-    let best=0;
-
-    for(let i=0;i<=text.length;i++){
-
-        const test=document.createElement("span");
-        test.textContent=(text[i]||" ");
-        editor.appendChild(test);
-
-        const r=test.getBoundingClientRect();
-        editor.removeChild(test);
-
-        if(x<r.left+r.width/2){
-            best=i;
-            break;
-        }
-        best=i;
-    }
-
-    selEnd=best;
-    caret=best;
-    render();
-});
-
-window.addEventListener("mouseup",()=>{
-    dragging=false;
-});
-
-/* =========================
-   PASTE SUPPORT
-========================= */
-
-editor.addEventListener("paste",(e)=>{
-    e.preventDefault();
-
-    const paste=(e.clipboardData||window.clipboardData).getData("text");
-
-    insert(paste);
-});
-
-/* =========================
-   IME SUPPORT (basic)
-========================= */
-
-editor.addEventListener("compositionend",(e)=>{
-    insert(e.data);
-});
-
-/* =========================
-   KEYBOARD (simple)
-========================= */
-
+/* ===== EVENTS ===== */
 document.querySelectorAll(".letter").forEach(b=>{
-    b.onclick=()=>insert(b.dataset.data);
+    b.onclick=()=>insert(isUpper()?b.dataset.u:b.dataset.l);
 });
+
+document.getElementById("shift").onclick=()=>{
+    shift=!shift;
+    updateKeys();
+};
+
+document.getElementById("caps").onclick=()=>{
+    caps=!caps;
+    updateKeys();
+};
+
+document.getElementById("space").onclick=()=>{
+    insert(" ");
+};
+
+document.getElementById("enter").onclick=()=>{
+    insert("\n");
+};
+
+document.getElementById("back").onclick=backspace;
 
 render();
 
