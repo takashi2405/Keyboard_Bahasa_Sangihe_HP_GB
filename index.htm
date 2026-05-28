@@ -2,63 +2,44 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Keyboard Bahasa Sangihe</title>
 
 <style>
 
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-
 body{
     margin:0;
-    height:100dvh;
+    font-family:sans-serif;
     display:flex;
     flex-direction:column;
+    height:100dvh;
     background:#f0f2f5;
-    font-family:sans-serif;
 }
 
 h2{
+    text-align:center;
     margin:0;
     padding:6px;
-    text-align:center;
-    flex:0 0 auto;
 }
 
-/* EDITOR */
-#editorWrap{
+#editor{
     flex:1;
     margin:6px;
     padding:10px;
     border:2px solid #ccc;
     border-radius:10px;
     background:#fff;
-
     font-size:20px;
     white-space:pre-wrap;
     word-break:break-word;
-
-    overflow:auto;
 }
 
-/* CARET */
-#caret{
-    display:inline-block;
-    width:2px;
-    height:1em;
-    background:black;
-    animation:blink 1s step-end infinite;
-}
-
-@keyframes blink{50%{opacity:0;}}
-
-/* KEYBOARD */
 .keyboard{
-    flex:0 0 auto;   /* ★重要：潰れ防止 */
     margin:6px;
     display:flex;
     flex-direction:column;
     gap:4px;
+    flex:0 0 auto;
 }
 
 .row10{
@@ -75,13 +56,11 @@ h2{
     font-weight:600;
 }
 
-/* FOOTER */
 .footer{
-    flex:0 0 auto;
     text-align:center;
     font-size:10px;
+    padding:4px;
     color:#666;
-    padding:4px 0 6px;
 }
 
 </style>
@@ -91,82 +70,54 @@ h2{
 
 <h2>Keyboard Bahasa Sangihe</h2>
 
-<div id="editorWrap"></div>
+<div id="editor"></div>
 
 <div class="keyboard">
 
+<!-- ROW 1 -->
 <div class="row10">
-<button class="key letter" data-l="q">q</button>
-<button class="key letter" data-l="w">w</button>
-<button class="key letter" data-l="e">e</button>
-<button class="key letter" data-l="r">r</button>
-<button class="key letter" data-l="t">t</button>
-<button class="key letter" data-l="y">y</button>
-<button class="key letter" data-l="u">u</button>
-<button class="key letter" data-l="i">i</button>
-<button class="key letter" data-l="o">o</button>
-<button class="key letter" data-l="p">p</button>
+<button class="key">q</button>
+<button class="key">w</button>
+<button class="key">e</button>
+<button class="key">r</button>
+<button class="key">t</button>
+<button class="key">y</button>
+<button class="key">u</button>
+<button class="key">i</button>
+<button class="key">o</button>
+<button class="key">p</button>
+</div>
+
+<!-- ROW 2 -->
+<div class="row10">
+<button class="key">a</button>
+<button class="key">s</button>
+<button class="key">d</button>
+<button class="key">f</button>
+<button class="key">g</button>
+<button class="key">h</button>
+<button class="key">j</button>
+<button class="key">k</button>
+<button class="key">l</button>
+<button class="key">.</button>
 </div>
 
 </div>
 
 <div class="footer">
-© 2026 Takashi NAKAGAWA [0528]
+© 2026 Takashi NAKAGAWA [0537]
 </div>
 
 <script>
 
+const editor=document.getElementById("editor");
 let text="";
-let caret=0;
 
-const editor=document.getElementById("editorWrap");
-
-/* ===== RENDER (SAFE) ===== */
-function render(){
-
-    editor.innerHTML="";
-
-    const before=text.slice(0,caret);
-    const after=text.slice(caret);
-
-    const beforeNode=document.createTextNode(before);
-
-    const caretNode=document.createElement("span");
-    caretNode.id="caret";
-
-    const afterNode=document.createTextNode(after);
-
-    editor.appendChild(beforeNode);
-    editor.appendChild(caretNode);
-    editor.appendChild(afterNode);
-}
-
-/* INSERT */
-function insert(ch){
-    text=text.slice(0,caret)+ch+text.slice(caret);
-    caret++;
-    render();
-}
-
-/* CLICK CARET */
-editor.addEventListener("click",(e)=>{
-
-    const range=document.caretRangeFromPoint?.(e.clientX,e.clientY);
-
-    if(range){
-        caret=range.startOffset;
-        render();
-    }
-});
-
-/* ★重要：DOM確定後にバインド */
-window.addEventListener("DOMContentLoaded",()=>{
-
-    document.querySelectorAll(".letter").forEach(b=>{
-        b.addEventListener("click",()=>insert(b.dataset.l));
+document.querySelectorAll(".key").forEach(k=>{
+    k.addEventListener("click",()=>{
+        text += k.textContent;
+        editor.textContent = text;
     });
-
-    render();
 });
 
 </script>
