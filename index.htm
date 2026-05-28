@@ -43,7 +43,7 @@ h2{
     overflow:auto;
 }
 
-/* INLINE CARET */
+/* CARET */
 #caret{
     display:inline-block;
     width:2px;
@@ -55,7 +55,7 @@ h2{
 
 @keyframes blink{50%{opacity:0;}}
 
-/* keyboard */
+/* KEYBOARD */
 .keyboard{
     margin:6px;
     display:flex;
@@ -75,6 +75,15 @@ h2{
     border-radius:8px;
     background:#f8f9fa;
     font-weight:600;
+}
+
+/* FOOTER */
+.footer{
+    text-align:center;
+    font-size:10px;
+    color:#666;
+    padding:4px 0 6px;
+    flex:0 0 auto;
 }
 
 </style>
@@ -103,31 +112,31 @@ h2{
 
 </div>
 
+<div class="footer">
+© 2026 Takashi NAKAGAWA [0518]
+</div>
+
 <script>
 
-/* STATE */
 let text="";
 let caret=0;
 
 const editor=document.getElementById("editorWrap");
 
-/* ===== RENDER (NO DOM DESTRUCTION) ===== */
+/* RENDER */
 function render(){
 
     editor.innerHTML="";
 
-    const before = text.slice(0,caret);
-    const after  = text.slice(caret);
+    const before=text.slice(0,caret);
+    const after=text.slice(caret);
 
-    // before text
-    const beforeNode = document.createTextNode(before);
+    const beforeNode=document.createTextNode(before);
 
-    // caret
-    const caretNode = document.createElement("span");
+    const caretNode=document.createElement("span");
     caretNode.id="caret";
 
-    // after text
-    const afterNode = document.createTextNode(after);
+    const afterNode=document.createTextNode(after);
 
     editor.appendChild(beforeNode);
     editor.appendChild(caretNode);
@@ -136,25 +145,23 @@ function render(){
 
 /* INSERT */
 function insert(ch){
-    text = text.slice(0,caret) + ch + text.slice(caret);
+    text=text.slice(0,caret)+ch+text.slice(caret);
     caret++;
     render();
 }
 
-/* CLICK POSITION */
+/* CLICK CARET */
 editor.addEventListener("click",(e)=>{
 
-    const range=document.caretRangeFromPoint
-        ? document.caretRangeFromPoint(e.clientX,e.clientY)
-        : null;
+    const range=document.caretRangeFromPoint?.(e.clientX,e.clientY);
 
     if(range){
-        caret = range.startOffset;
+        caret=range.startOffset;
         render();
     }
 });
 
-/* KEYBOARD */
+/* KEYS */
 document.querySelectorAll(".letter").forEach(b=>{
     b.onclick=()=>insert(b.dataset.l);
 });
