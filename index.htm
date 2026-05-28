@@ -35,28 +35,27 @@ h2{
     border:2px solid #ccc;
     border-radius:10px;
     background:#fff;
-    overflow:auto;
 
     font-size:20px;
     white-space:pre-wrap;
     word-break:break-word;
 
-    position:relative;
+    overflow:auto;
 }
 
-.char{white-space:pre;}
-
+/* INLINE CARET */
 #caret{
-    position:absolute;
+    display:inline-block;
     width:2px;
-    height:22px;
+    height:1em;
     background:black;
+    vertical-align:bottom;
     animation:blink 1s step-end infinite;
 }
 
 @keyframes blink{50%{opacity:0;}}
 
-/* KEYBOARD */
+/* keyboard */
 .keyboard{
     margin:6px;
     display:flex;
@@ -64,7 +63,11 @@ h2{
     gap:4px;
 }
 
-.row10{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;}
+.row10{
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    gap:4px;
+}
 
 .key{
     height:42px;
@@ -72,14 +75,6 @@ h2{
     border-radius:8px;
     background:#f8f9fa;
     font-weight:600;
-}
-
-/* FOOTER */
-.footer{
-    text-align:center;
-    font-size:10px;
-    color:#666;
-    padding:4px 0 6px;
 }
 
 </style>
@@ -90,7 +85,6 @@ h2{
 <h2>Keyboard Bahasa Sangihe</h2>
 
 <div id="editorWrap"></div>
-<div id="caret"></div>
 
 <div class="keyboard">
 
@@ -109,75 +103,55 @@ h2{
 
 </div>
 
-<div class="footer">
-© 2026 Takashi NAKAGAWA [0512]
-</div>
-
 <script>
 
+/* STATE */
 let text="";
 let caret=0;
 
 const editor=document.getElementById("editorWrap");
-const caretEl=document.getElementById("caret");
 
-/* RENDER */
+/* ===== RENDER (NO DOM DESTRUCTION) ===== */
 function render(){
 
     editor.innerHTML="";
 
-    for(let i=0;i<=text.length;i++){
+    const before = text.slice(0,caret);
+    const after  = text.slice(caret);
 
-        const span=document.createElement("span");
-        span.className="char";
+    // before text
+    const beforeNode = document.createTextNode(before);
 
-        span.textContent = text[i] || "";
-        if(i===text.length){
-            span.id="anchor";
-        }
+    // caret
+    const caretNode = document.createElement("span");
+    caretNode.id="caret";
 
-        editor.appendChild(span);
-    }
+    // after text
+    const afterNode = document.createTextNode(after);
 
-    const anchor=document.getElementById("anchor");
-    const r=anchor.getBoundingClientRect();
-    const er=editor.getBoundingClientRect();
-
-    caretEl.style.left=(r.left-er.left+editor.scrollLeft)+"px";
-    caretEl.style.top=(r.top-er.top+editor.scrollTop)+"px";
+    editor.appendChild(beforeNode);
+    editor.appendChild(caretNode);
+    editor.appendChild(afterNode);
 }
 
 /* INSERT */
 function insert(ch){
-    text=text.slice(0,caret)+ch+text.slice(caret);
+    text = text.slice(0,caret) + ch + text.slice(caret);
     caret++;
     render();
 }
 
-/* CLICK → CARET */
+/* CLICK POSITION */
 editor.addEventListener("click",(e)=>{
 
-    const x=e.clientX;
-    let best=0;
+    const range=document.caretRangeFromPoint
+        ? document.caretRangeFromPoint(e.clientX,e.clientY)
+        : null;
 
-    for(let i=0;i<=text.length;i++){
-
-        const temp=document.createElement("span");
-        temp.textContent=text[i]||"";
-        editor.appendChild(temp);
-
-        const r=temp.getBoundingClientRect();
-        editor.removeChild(temp);
-
-        if(x<r.left+r.width/2){
-            best=i;
-            break;
-        }
-        best=i;
+    if(range){
+        caret = range.startOffset;
+        render();
     }
-
-    caret=best;
-    render();
 });
 
 /* KEYBOARD */
